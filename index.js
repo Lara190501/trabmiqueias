@@ -241,12 +241,12 @@ const process = typeof process !== "undefined" ? process : { env: {} };
 // Pegue a porta da variável de ambiente ou use a padrão
 const PORT = process.env.PORT || DEFAULT_PORT;
 
- server.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running at http://localhost:${PORT}/`);
     console.log("Open the URL in your browser and click the button to fetch Star Wars data");
 
-     if (debug_mode) {
-         console.log("Debug mode: ON");
-         console.log("Timeout:", timeout, "ms");
-     }
+    if (debug_mode) {
+        console.log("Debug mode: ON");
+        console.log("Timeout:", timeout, "ms");
+    }
 });
