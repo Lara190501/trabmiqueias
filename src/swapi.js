@@ -3,9 +3,10 @@
 
 const http = require("http");
 const https = require("https");
+const process = require("process");
 
-// Adicionando require do process para evitar erro no ESLint
-const processGlobal = typeof process !== "undefined" ? process : { env: {} };
+// Defines the slice used for process.argv. The number 2 means that we only want the command line arguments 
+const processCommandLine = 2;
 
 // Constantes de configuração
 const CONFIG = {
@@ -299,7 +300,7 @@ const server = http.createServer((request, response) => {
 });
 
 // Processamento de argumentos da linha de comando
-const args = process.argv.slice(2);
+const args = process.argv.slice(processCommandLine);
 if (args.includes("--no-debug")) {
     CONFIG.DEBUG_MODE = false;
 }
