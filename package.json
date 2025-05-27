@@ -1,0 +1,26 @@
+{
+  "name": "trabmiqueias",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint" : "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lara190501/trabmiqueias.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Lara190501/trabmiqueias/issues"
+  },
+  "homepage": "https://github.com/Lara190501/trabmiqueias#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "eslint": "^9.27.0",
+    "globals": "^16.2.0"
+  }
+}
