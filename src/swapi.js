@@ -39,47 +39,44 @@ const HTTP_STATUS = {
 // Função para fazer requisições à API
 async function fetchFromStarWarsAPI(endpoint) {
     if (CONFIG.CACHE[endpoint]) {
-        if (CONFIG.DEBUG_MODE) console.log("Usando dados em cache para", endpoint);
+        logDebug("Usando dados em cache para", endpoint);
         return CONFIG.CACHE[endpoint];
     }
-    
+
+    try {
+        const data = await requestWithTimeout(`${CONFIG.API_BASE_URL}/${endpoint}`);
+        const parsed = JSON.parse(data);
+        CONFIG.CACHE[endpoint] = parsed;
+        logDebug(`Dados obtidos com sucesso para ${endpoint}`);
+        logDebug(`Tamanho do cache: ${Object.keys(CONFIG.CACHE).length}`);
+        return parsed;
+    } catch (err) {
+        CONFIG.ERROR_COUNT++;
+        throw err;
+    }
+}
+
+function logDebug(...args) {
+    if (CONFIG.DEBUG_MODE) console.log(...args);
+}
+
+function requestWithTimeout(url) {
     return new Promise((resolve, reject) => {
-        let responseData = "";
-        const request = https.get(
-            `${CONFIG.API_BASE_URL}/${endpoint}`, 
-            { rejectUnauthorized: false }, 
-            (response) => {
-                if (response.statusCode >= HTTP_STATUS.BAD_REQUEST) {
-                    CONFIG.ERROR_COUNT++;
-                    reject(new Error(`Falha na requisição com código ${response.statusCode}`));
-                    return;
-                }
-                
-                response.on("data", (chunk) => { responseData += chunk; });
-                response.on("end", () => {
-                    try {
-                        const parsedData = JSON.parse(responseData);
-                        CONFIG.CACHE[endpoint] = parsedData;
-                        resolve(parsedData);
-                        if (CONFIG.DEBUG_MODE) {
-                            console.log(`Dados obtidos com sucesso para ${endpoint}`);
-                            console.log(`Tamanho do cache: ${Object.keys(CONFIG.CACHE).length}`);
-                        }
-                    } catch (error) {
-                        CONFIG.ERROR_COUNT++;
-                        reject(error);
-                    }
-                });
+        let data = "";
+        const request = https.get(url, { rejectUnauthorized: false }, response => {
+            if (response.statusCode >= HTTP_STATUS.BAD_REQUEST) {
+                return reject(new Error(`Falha na requisição com código ${response.statusCode}`));
             }
-        ).on("error", (error) => {
-            CONFIG.ERROR_COUNT++;
-            reject(error);
+
+            response.on("data", chunk => data += chunk);
+            response.on("end", () => resolve(data));
+            return true;
         });
-        
+
+        request.on("error", reject);
         request.setTimeout(CONFIG.DEFAULT_TIMEOUT, () => {
             request.abort();
-            CONFIG.ERROR_COUNT++;
-            reject(new Error(`Tempo limite excedido para ${endpoint}`));
+            reject(new Error("Tempo limite excedido"));
         });
     });
 }
